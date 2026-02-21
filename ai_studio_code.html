@@ -41,29 +41,38 @@
             height: 100%;
             background-image: url('https://mingguang.im/gongfo/assets/img/bg.jpg');
             background-size: contain;
-            background-position: center bottom; /* 關鍵修正：對齊底部，確保桌子在最下方 */
             background-repeat: no-repeat;
+            background-position: center top;
             z-index: 1;
             filter: brightness(0.3);
             transition: filter 2s ease-in-out;
         }
 
-        /* --- 佛像層 (大幅上移並微縮，讓出八吉祥空間) --- */
+        /* --- 佛像層 (向上調整位置) --- */
         .buddha-layer {
             position: absolute;
-            top: 2%; /* 向上提到最高 */
+            top: 5%; /* 從 15% 調整為 5%，整體向上 */
             left: 50%;
             transform: translateX(-50%);
-            width: 45%;
-            max-width: 340px; /* 縮小一點，避免黑框壓到供燈與八吉祥 */
+            width: 55%;
+            max-width: 450px;
             z-index: 2;
             text-align: center;
+        }
+
+        /* 直式螢幕優化佛像比例 (向上調整位置) */
+        @media screen and (max-aspect-ratio: 1/1) {
+            .buddha-layer {
+                width: 75%;
+                top: 8%; /* 從 18% 調整為 8%，整體向上 */
+            }
         }
 
         .buddha-img {
             width: 100%;
             height: auto;
             filter: brightness(0.6) drop-shadow(0 0 10px rgba(255,215,0,0.3));
+            /* 加入 opacity 漸變，讓切換佛像時有淡入淡出效果 */
             transition: filter 2s ease-in-out, opacity 0.5s ease-in-out;
             display: block;
             opacity: 1;
@@ -73,7 +82,7 @@
         #app.light-up .bg-layer { filter: brightness(1.0); }
         #app.light-up .buddha-img { filter: brightness(1.0) drop-shadow(0 0 30px rgba(255,215,0,0.7)); }
 
-        /* --- 供品層 --- */
+        /* --- 供品層 (維持原始正確排版) --- */
         .offerings-layer {
             position: absolute;
             bottom: 25%;
@@ -92,7 +101,7 @@
         }
         .offering.show { opacity: 1; }
 
-        /* 各項供品定位 */
+        /* 各項供品定位 (原始精準數值) */
         .lamp-left { left: 2%; bottom: -7px; width: 15%; max-width: 100px; z-index: 10; }
         .lamp-right { right: 2%; bottom: -7px; width: 15%; max-width: 100px; z-index: 10; }
         .water-bowl { left: 50%; transform: translateX(-50%); bottom: -160px; width: 85%; max-width: 500px; z-index: 50; }
@@ -101,6 +110,14 @@
         .flower-vase-right { right: 2%; bottom: -160px; width: 18%; max-width: 110px; z-index: 60; }
         .mandala-plate { left: 22%; bottom: -80px; width: 20%; max-width: 120px; z-index: 8; }
         .food-plate { right: 22%; bottom: -80px; width: 20%; max-width: 100px; z-index: 8; }
+
+        /* 手機直式螢幕微調 */
+        @media screen and (max-width: 500px) {
+            .offerings-layer { bottom: 22%; }
+            .lamp-left { bottom: 60px; }
+            .lamp-right { bottom: 60px; }
+            .water-bowl { bottom: -40px; }
+        }
 
         /* --- 燭火動畫 --- */
         .flame-anim {
@@ -146,14 +163,17 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             transition: 0.2s;
         }
+
         .btn:active { transform: scale(0.95); }
         .btn-reset { background: #641e16; color: #f1c40f; border: 1px solid #f1c40f; }
+        
+        /* 佛像切換按鈕樣式 */
         .btn-buddha { background: linear-gradient(to bottom, #8e44ad, #6c3483); color: #f1c40f; border: 1px solid #f1c40f; }
 
-        /* --- 提示文字 (改為從上方定位，永不擋臉) --- */
+        /* --- 提示文字 (向上調整位置) --- */
         .message {
             position: absolute;
-            top: 60px; /* 從頂部往下算，避免依賴不穩定的 bottom */
+            bottom: 800px; /* 從 720px 調整為 800px，向上移動 */
             width: 100%;
             text-align: center;
             color: #f1c40f;
@@ -165,32 +185,9 @@
             pointer-events: none;
         }
 
-        /* =========================================
-           手機直式螢幕全面修復區 (Max Width 768px)
-           ========================================= */
-        @media screen and (max-width: 768px) {
-            .bg-layer {
-                /* 手機螢幕窄長，強制 cover 填滿黑邊，並對齊底部桌子 */
-                background-size: cover; 
-                background-position: center bottom;
-            }
-            .buddha-layer {
-                width: 80%; /* 手機上佛像稍微放大 */
-                top: 15%; /* 手機版位置微調 */
-                max-width: none;
-            }
-            .offerings-layer {
-                bottom: 20%; 
-                /* 使用 scale 等比例縮小供品，避免在手機上太擠 */
-                transform: scale(0.85); 
-                transform-origin: bottom center;
-            }
-            .message {
-                top: 70px; /* 手機文字維持在頂部安全區 */
-            }
-            /* 微調底部按鈕，讓出更多空間 */
-            .controls { gap: 6px; padding-bottom: 30px; }
-            .btn { font-size: 12px; padding: 6px 10px; }
+        /* 手機直式螢幕提示文字微調 (向上調整位置) */
+        @media screen and (max-width: 576px) {
+            .message { bottom: 85%; } /* 從 70% 調整為 85%，向上移動 */
         }
     </style>
 </head>
@@ -253,22 +250,22 @@
 </div>
 
 <script>
-    // 佛像圖片陣列 (已加入綠度母)
+    // 佛像圖片陣列
     const buddhaImages = [
+        { url: 'https://mingguang.im/gongfo/assets/img/foxiang/1.png', name: '釋迦牟尼佛', description: '本師釋迦牟尼佛，佛教創始人' },
         { url: 'https://biung-od.github.io/pandy/%E9%98%BF%E5%BD%8C%E9%99%80%E4%BD%9B.avif', name: '阿彌陀佛', description: '西方極樂世界教主，接引眾生' },
         { url: 'https://biung-od.github.io/pandy/%E8%97%A5%E5%B8%AB%E4%BD%9B.webp', name: '藥師佛', description: '東方淨琉璃世界教主，消災延壽' },
         { url: 'https://biung-od.github.io/pandy/%E5%9B%9B%E8%87%82%E8%A7%80%E9%9F%B3.webp', name: '觀世音菩薩', description: '大慈大悲，救苦救難' },
         { url: 'https://biung-od.github.io/pandy/%E5%9C%B0%E8%97%8F%E7%8E%8B%E8%8F%A9%E8%96%A9.webp', name: '地藏王菩薩', description: '地獄不空，誓不成佛' },
         { url: 'https://biung-od.github.io/pandy/%E6%96%87%E6%AE%8A%E8%8F%A9%E8%96%A9.avif', name: '文殊菩薩', description: '智慧第一，開發智慧' },
-        { url: 'https://biung-od.github.io/pandy/%E6%99%AE%E8%B3%A2%E8%8F%A9%E8%96%A9.webp', name: '普賢菩薩', description: '行願第一，實踐佛法' },
-        { url: 'https://biung-od.github.io/pandy/%E7%B6%A0%E5%BA%A6%E6%AF%8D.webp', name: '綠度母', description: '觀音菩薩化身，救度八難，滿願迅速' } /* 如果你有專屬網址，請替換 URL */
+        { url: 'https://biung-od.github.io/pandy/%E7%B6%A0%E5%BA%A6%E6%AF%8D.webp', name: '綠度母', description: '救度八難，滿願迅速' }
     ];
 
     let currentBuddhaIndex = 0;
 
     // 初始化
     function initBuddha() {
-        updateBuddhaDisplay(false); 
+        updateBuddhaDisplay(false); // 第一次載入不顯示提示文字
     }
 
     // 切換佛像
@@ -284,10 +281,14 @@
         const buddhaImg = document.getElementById('buddha-main-img');
         const buddha = buddhaImages[currentBuddhaIndex];
 
+        // 先變透明
         buddhaImg.style.opacity = 0;
 
+        // 等待透明動畫結束後換圖
         setTimeout(() => {
-            buddhaImg.onload = () => { buddhaImg.style.opacity = 1; };
+            buddhaImg.onload = () => {
+                buddhaImg.style.opacity = 1; // 載入完成後變回不透明
+            };
             buddhaImg.onerror = () => {
                 buddhaImg.src = 'https://via.placeholder.com/450x600?text=載入失敗';
                 buddhaImg.style.opacity = 1;
@@ -295,9 +296,11 @@
             buddhaImg.src = buddha.url;
             buddhaImg.alt = buddha.name;
 
+            // 如果圖片有快取，onload 可能不會觸發，強制執行
             if (buddhaImg.complete) buddhaImg.onload();
-        }, 300);
+        }, 300); // 配合 CSS 的 0.5s 動畫，稍微提早換圖
 
+        // 顯示提示文字
         if (showMessage) {
             const msgBox = document.getElementById('msg-box');
             msgBox.innerText = `現前供養：${buddha.name} - ${buddha.description}`;
@@ -308,7 +311,7 @@
         }
     }
 
-    // 供養功能
+    // 供養功能 (原始邏輯)
     function offer(type, text) {
         document.getElementById('app').classList.add('light-up');
 
