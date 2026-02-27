@@ -13,7 +13,7 @@
             height: 100%;
             background-color: #1a1a1a;
             font-family: "Microsoft YaHei", "Heiti SC", sans-serif;
-            overflow-x: hidden; /* Prevent horizontal scrollbar */
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,6 +23,7 @@
         #app {
             position: relative;
             width: 100%;
+            max-width: 800px;
             height: 100vh;
             background: #2b0c0c;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
@@ -31,7 +32,7 @@
             flex-direction: column;
         }
 
-        /* --- 背景層 (修正：確保底圖比例正確不被過度裁切) --- */
+        /* --- 背景層 --- */
         .bg-layer {
             position: absolute;
             top: 0;
@@ -39,18 +40,18 @@
             width: 100%;
             height: 100%;
             background-image: url('https://mingguang.im/gongfo/assets/img/bg.jpg');
-            background-size: cover; /* Use cover to fill the area, may crop */
+            background-size: contain;
             background-repeat: no-repeat;
-            background-position: center center;
+            background-position: center top;
             z-index: 1;
             filter: brightness(0.3);
             transition: filter 2s ease-in-out;
         }
 
-        /* --- 佛像層 --- */
+        /* --- 佛像層 (向上調整位置) --- */
         .buddha-layer {
             position: absolute;
-            top: 15%;
+            top: 5%; /* 從 15% 調整為 5%，整體向上 */
             left: 50%;
             transform: translateX(-50%);
             width: 55%;
@@ -59,31 +60,35 @@
             text-align: center;
         }
 
+        /* 直式螢幕優化佛像比例 (向上調整位置) */
+        @media screen and (max-aspect-ratio: 1/1) {
+            .buddha-layer {
+                width: 75%;
+                top: 8%; /* 從 18% 調整為 8%，整體向上 */
+            }
+        }
+
         .buddha-img {
             width: 100%;
             height: auto;
             filter: brightness(0.6) drop-shadow(0 0 10px rgba(255,215,0,0.3));
-            transition: filter 2s ease-in-out, transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
+            /* 加入 opacity 漸變，讓切換佛像時有淡入淡出效果 */
+            transition: filter 2s ease-in-out, opacity 0.5s ease-in-out;
             display: block;
             opacity: 1;
         }
 
         /* --- 開燈狀態 --- */
-        #app.light-up .bg-layer {
-            filter: brightness(1.0);
-        }
-        #app.light-up .buddha-img {
-            filter: brightness(1.0) drop-shadow(0 0 30px rgba(255,215,0,0.7));
-            transform: translateX(-50%) scale(1.05); /* Slightly enlarge when light up */
-        }
+        #app.light-up .bg-layer { filter: brightness(1.0); }
+        #app.light-up .buddha-img { filter: brightness(1.0) drop-shadow(0 0 30px rgba(255,215,0,0.7)); }
 
-        /* --- 供品層 --- */
+        /* --- 供品層 (維持原始正確排版) --- */
         .offerings-layer {
             position: absolute;
-            bottom: 25%; /* 根據視覺桌面上移 */
+            bottom: 25%;
             left: 0;
             width: 100%;
-            height: 300px; /* Base height, will be adjusted by media queries */
+            height: 300px;
             z-index: 3;
             pointer-events: none;
         }
@@ -94,58 +99,35 @@
             transition: opacity 1s ease-in-out, transform 1s ease-in-out;
             bottom: 0;
         }
+        .offering.show { opacity: 1; }
 
-        .offering.show {
-            opacity: 1;
-        }
-
-        /* 供燈 */
+        /* 各項供品定位 (原始精準數值) */
         .lamp-left { left: 2%; bottom: -7px; width: 15%; max-width: 100px; z-index: 10; }
         .lamp-right { right: 2%; bottom: -7px; width: 15%; max-width: 100px; z-index: 10; }
-
-        /* 水杯 */
-        .water-bowl {
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: -160px;
-            width: 85%;
-            max-width: 500px;
-            z-index: 50;
-        }
-
-        /* 香爐 */
-        .incense-burner {
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: -90px;
-            width: 18%;
-            max-width: 110px;
-            z-index: 55;
-        }
-
-        /* 花瓶 (置於最前 z-index 60) */
+        .water-bowl { left: 50%; transform: translateX(-50%); bottom: -160px; width: 85%; max-width: 500px; z-index: 50; }
+        .incense-burner { left: 50%; transform: translateX(-50%); bottom: -90px; width: 18%; max-width: 110px; z-index: 55; }
         .flower-vase-left { left: 2%; bottom: -160px; width: 18%; max-width: 110px; z-index: 60; }
         .flower-vase-right { right: 2%; bottom: -160px; width: 18%; max-width: 110px; z-index: 60; }
-
-        /* 供曼札 */
         .mandala-plate { left: 22%; bottom: -80px; width: 20%; max-width: 120px; z-index: 8; }
-
-        /* 供食子 */
         .food-plate { right: 22%; bottom: -80px; width: 20%; max-width: 100px; z-index: 8; }
+
+        /* 手機直式螢幕微調 */
+        @media screen and (max-width: 500px) {
+            .offerings-layer { bottom: 22%; }
+            .lamp-left { bottom: 60px; }
+            .lamp-right { bottom: 60px; }
+            .water-bowl { bottom: -40px; }
+        }
 
         /* --- 燭火動畫 --- */
         .flame-anim {
             width: 12px; height: 24px;
             background: radial-gradient(circle, #fff 0%, #ffcc00 40%, #ff6600 100%);
             border-radius: 50% 50% 20% 20%;
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translateX(-50%);
+            position: absolute; top: 45%; left: 50%; transform: translateX(-50%);
             box-shadow: 0 0 15px #ff6600;
             animation: flicker 0.1s infinite alternate;
-            display: none;
-            z-index: 11;
+            display: none; z-index: 11;
         }
         .show .flame-anim { display: block; }
 
@@ -183,23 +165,15 @@
         }
 
         .btn:active { transform: scale(0.95); }
+        .btn-reset { background: #641e16; color: #f1c40f; border: 1px solid #f1c40f; }
+        
+        /* 佛像切換按鈕樣式 */
+        .btn-buddha { background: linear-gradient(to bottom, #8e44ad, #6c3483); color: #f1c40f; border: 1px solid #f1c40f; }
 
-        .btn-reset {
-            background: #641e16;
-            color: #f1c40f;
-            border: 1px solid #f1c40f;
-        }
-
-        .btn-buddha {
-            background: linear-gradient(to bottom, #8e44ad, #6c3483);
-            color: #f1c40f;
-            border: 1px solid #f1c40f;
-        }
-
-        /* --- 提示文字 --- */
+        /* --- 提示文字 (向上調整位置) --- */
         .message {
             position: absolute;
-            bottom: 720px; /* Needs adjustment for smaller screens */
+            bottom: 800px; /* 從 720px 調整為 800px，向上移動 */
             width: 100%;
             text-align: center;
             color: #f1c40f;
@@ -211,117 +185,9 @@
             pointer-events: none;
         }
 
-        /* --- 媒體查詢 --- */
-
-        /* 手機直式螢幕優化 (適用於寬度小於 576px) */
+        /* 手機直式螢幕提示文字微調 (向上調整位置) */
         @media screen and (max-width: 576px) {
-            #app {
-                box-shadow: none; /* Remove shadow on small screens */
-            }
-            .bg-layer {
-                background-size: cover; /* Cover is better for small screens to fill */
-            }
-            .buddha-layer {
-                width: 85%; /* Make Buddha larger on phones */
-                top: 18%;
-                max-width: 350px;
-            }
-            .buddha-img {
-                filter: brightness(0.5) drop-shadow(0 0 8px rgba(255,215,0,0.2));
-            }
-            #app.light-up .buddha-img {
-                transform: translateX(-50%) scale(1.02); /* Slight scale */
-            }
-
-            .offerings-layer {
-                bottom: 20%; /* Adjust bottom positioning for offerings */
-                height: 250px; /* Reduce base height for offerings */
-            }
-            .lamp-left, .lamp-right { bottom: 45px; width: 20%; max-width: 80px; }
-            .water-bowl { bottom: -50px; width: 90%; max-width: 350px; }
-            .incense-burner { bottom: -70px; width: 25%; max-width: 90px; }
-            .flower-vase-left, .flower-vase-right { bottom: -50px; width: 25%; max-width: 90px; }
-            .mandala-plate { bottom: -60px; width: 25%; max-width: 90px; }
-            .food-plate { bottom: -60px; width: 25%; max-width: 80px; }
-
-            .flame-anim { /* Adjust flame size */
-                width: 10px; height: 20px;
-                top: 50%;
-            }
-
-            .controls {
-                padding: 10px 0 30px 0; /* More padding at bottom */
-                gap: 6px; /* Smaller gap between buttons */
-            }
-            .btn {
-                font-size: 12px;
-                padding: 6px 10px;
-            }
-            .btn-reset { font-size: 12px; padding: 6px 10px; }
-
-            .message {
-                bottom: 70%; /* Move message box higher on phones */
-                font-size: 16px;
-            }
-        }
-
-        /* 平板直式螢幕優化 (適用於寬度介於 577px 到 768px) */
-        @media screen and (min-width: 577px) and (max-width: 768px) {
-            .buddha-layer {
-                width: 70%;
-                top: 15%;
-                max-width: 400px;
-            }
-            .offerings-layer {
-                bottom: 20%;
-                height: 280px;
-            }
-            .lamp-left, .lamp-right { bottom: -10px; width: 15%; max-width: 90px; }
-            .water-bowl { bottom: -140px; width: 80%; max-width: 450px; }
-            .incense-burner { bottom: -80px; width: 20%; max-width: 110px; }
-            .flower-vase-left, .flower-vase-right { bottom: -140px; width: 20%; max-width: 110px; }
-            .mandala-plate { bottom: -70px; width: 22%; max-width: 110px; }
-            .food-plate { bottom: -70px; width: 22%; max-width: 100px; }
-
-            .flame-anim { top: 48%; }
-
-            .controls { gap: 10px; }
-            .btn { font-size: 13px; padding: 7px 11px; }
-            .btn-reset { font-size: 13px; padding: 7px 11px; }
-
-            .message { bottom: 720px; } /* Keep similar to desktop for balance */
-        }
-
-        /* 桌面螢幕優化 (適用於寬度大於 768px) */
-        @media screen and (min-width: 769px) {
-            /* Base styles are generally for desktop, but we can refine */
-            #app {
-                max-width: 800px; /* Explicitly set max-width for desktop */
-                margin: 0 auto; /* Center the app container */
-            }
-            .buddha-layer {
-                width: 55%;
-                max-width: 450px;
-                top: 15%;
-            }
-            .offerings-layer {
-                bottom: 25%;
-                height: 300px;
-            }
-            .lamp-left, .lamp-right { bottom: -7px; width: 15%; max-width: 100px; }
-            .water-bowl { bottom: -160px; width: 85%; max-width: 500px; }
-            .incense-burner { bottom: -90px; width: 18%; max-width: 110px; }
-            .flower-vase-left, .flower-vase-right { bottom: -160px; width: 18%; max-width: 110px; }
-            .mandala-plate { bottom: -80px; width: 20%; max-width: 120px; }
-            .food-plate { bottom: -80px; width: 20%; max-width: 100px; }
-
-            .flame-anim { top: 45%; }
-
-            .controls { gap: 12px; }
-            .btn { font-size: 14px; padding: 9px 15px; }
-            .btn-reset { font-size: 14px; padding: 9px 15px; }
-
-            .message { bottom: 720px; }
+            .message { bottom: 85%; } /* 從 70% 調整為 85%，向上移動 */
         }
     </style>
 </head>
@@ -333,11 +199,10 @@
     <div class="bg-layer"></div>
 
     <div class="buddha-layer">
-         <img src="https://mingguang.im/gongfo/assets/img/foxiang/1.png" class="buddha-img" alt="佛像" onerror="this.style.display='none'">
+        <img src="https://mingguang.im/gongfo/assets/img/foxiang/1.png" class="buddha-img" id="buddha-main-img" alt="佛像">
     </div>
 
     <div class="offerings-layer">
-        <!-- 燈 -->
         <div class="offering lamp-left" id="vis-lamp-l">
             <div class="flame-anim"></div>
             <img src="https://mingguang.im/gongfo/assets/img/gd.png" width="100%" alt="燈">
@@ -347,12 +212,10 @@
             <img src="https://mingguang.im/gongfo/assets/img/gd.png" width="100%" alt="燈">
         </div>
 
-        <!-- 水 -->
         <div class="offering water-bowl" id="vis-water">
             <img src="https://mingguang.im/gongfo/assets/img/gs.png" width="100%" alt="水">
         </div>
 
-        <!-- 花 (z-index 60, 最前面) -->
         <div class="offering flower-vase-left" id="vis-flower-l">
             <img src="https://mingguang.im/gongfo/assets/img/gh.png" width="100%" alt="花">
         </div>
@@ -360,17 +223,14 @@
             <img src="https://mingguang.im/gongfo/assets/img/gh.png" width="100%" alt="花">
         </div>
 
-        <!-- 香 -->
         <div class="offering incense-burner" id="vis-incense">
             <img src="https://mingguang.im/gongfo/assets/img/gx.png" width="100%" alt="香">
         </div>
 
-        <!-- 供曼札 -->
         <div class="offering mandala-plate" id="vis-mandala">
             <img src="https://mingguang.im/gongfo/assets/img/mcl.png" width="100%" alt="曼札">
         </div>
 
-        <!-- 供食子 -->
         <div class="offering food-plate" id="vis-food">
             <img src="https://mingguang.im/gongfo/assets/img/gg.png" width="100%" alt="食子">
         </div>
@@ -390,95 +250,68 @@
 </div>
 
 <script>
-    // 佛像圖片陣列 - 可以替換成你想要供養的佛菩薩圖片
+    // 佛像圖片陣列
     const buddhaImages = [
-        { 
-            url: 'https://mingguang.im/gongfo/assets/img/foxiang/1.png', 
-            name: '釋迦牟尼佛',
-            description: '本師釋迦牟尼佛，佛教創始人'
-        },
-        { 
-            url: 'https://mingguang.im/gongfo/assets/img/foxiang/2.png', 
-            name: '阿彌陀佛',
-            description: '西方極樂世界教主，接引眾生'
-        },
-        { 
-            url: 'https://mingguang.im/gongfo/assets/img/foxiang/3.png', 
-            name: '藥師佛',
-            description: '東方淨琉璃世界教主，消災延壽'
-        },
-        { 
-            url: 'https://mingguang.im/gongfo/assets/img/foxiang/4.png', 
-            name: '觀世音菩薩',
-            description: '大慈大悲，救苦救難'
-        },
-        { 
-            url: 'https://mingguang.im/gongfo/assets/img/foxiang/5.png', 
-            name: '地藏王菩薩',
-            description: '地獄不空，誓不成佛'
-        },
-        { 
-            url: 'https://mingguang.im/gongfo/assets/img/foxiang/6.png', 
-            name: '文殊菩薩',
-            description: '智慧第一，開發智慧'
-        },
-        { 
-            url: 'https://mingguang.im/gongfo/assets/img/foxiang/7.png', 
-            name: '普賢菩薩',
-            description: '行願第一，實踐佛法'
-        }
+        { url: 'https://mingguang.im/gongfo/assets/img/foxiang/1.png', name: '釋迦牟尼佛', description: '本師釋迦牟尼佛，佛教創始人' },
+        { url: 'https://biung-od.github.io/pandy/%E9%98%BF%E5%BD%8C%E9%99%80%E4%BD%9B.avif', name: '阿彌陀佛', description: '西方極樂世界教主，接引眾生' },
+        { url: 'https://biung-od.github.io/pandy/%E8%97%A5%E5%B8%AB%E4%BD%9B.webp', name: '藥師佛', description: '東方淨琉璃世界教主，消災延壽' },
+        { url: 'https://biung-od.github.io/pandy/%E5%9B%9B%E8%87%82%E8%A7%80%E9%9F%B3.webp', name: '觀世音菩薩', description: '大慈大悲，救苦救難' },
+        { url: 'https://biung-od.github.io/pandy/%E5%9C%B0%E8%97%8F%E7%8E%8B%E8%8F%A9%E8%96%A9.webp', name: '地藏王菩薩', description: '地獄不空，誓不成佛' },
+        { url: 'https://biung-od.github.io/pandy/%E6%96%87%E6%AE%8A%E8%8F%A9%E8%96%A9.avif', name: '文殊菩薩', description: '智慧第一，開發智慧' },
+        { url: 'https://biung-od.github.io/pandy/%E7%B6%A0%E5%BA%A6%E6%AF%8D.webp', name: '綠度母', description: '救度八難，滿願迅速' }
     ];
 
     let currentBuddhaIndex = 0;
 
-    // 初始化顯示第一個佛像
+    // 初始化
     function initBuddha() {
-        updateBuddhaDisplay();
+        updateBuddhaDisplay(false); // 第一次載入不顯示提示文字
     }
 
     // 切換佛像
     function changeBuddha(direction) {
         currentBuddhaIndex += direction;
-        
-        // 循環切換
-        if (currentBuddhaIndex < 0) {
-            currentBuddhaIndex = buddhaImages.length - 1;
-        } else if (currentBuddhaIndex >= buddhaImages.length) {
-            currentBuddhaIndex = 0;
-        }
-        
-        updateBuddhaDisplay();
-        
-        // 顯示切換訊息
-        const msgBox = document.getElementById('msg-box');
-        const buddha = buddhaImages[currentBuddhaIndex];
-        msgBox.innerText = `現前供養：${buddha.name} - ${buddha.description}`;
-        msgBox.style.opacity = 1;
-        
-        setTimeout(() => {
-            msgBox.style.opacity = 0;
-        }, 3000);
+        if (currentBuddhaIndex < 0) currentBuddhaIndex = buddhaImages.length - 1;
+        if (currentBuddhaIndex >= buddhaImages.length) currentBuddhaIndex = 0;
+        updateBuddhaDisplay(true);
     }
 
-    // 更新佛像顯示
-    function updateBuddhaDisplay() {
-        const buddhaImg = document.querySelector('.buddha-img');
+    // 更新圖片顯示與淡入淡出
+    function updateBuddhaDisplay(showMessage) {
+        const buddhaImg = document.getElementById('buddha-main-img');
         const buddha = buddhaImages[currentBuddhaIndex];
-        
-        // 淡出效果
+
+        // 先變透明
         buddhaImg.style.opacity = 0;
-        
+
+        // 等待透明動畫結束後換圖
         setTimeout(() => {
+            buddhaImg.onload = () => {
+                buddhaImg.style.opacity = 1; // 載入完成後變回不透明
+            };
+            buddhaImg.onerror = () => {
+                buddhaImg.src = 'https://via.placeholder.com/450x600?text=載入失敗';
+                buddhaImg.style.opacity = 1;
+            };
             buddhaImg.src = buddha.url;
             buddhaImg.alt = buddha.name;
-            
-            // 淡入效果
+
+            // 如果圖片有快取，onload 可能不會觸發，強制執行
+            if (buddhaImg.complete) buddhaImg.onload();
+        }, 300); // 配合 CSS 的 0.5s 動畫，稍微提早換圖
+
+        // 顯示提示文字
+        if (showMessage) {
+            const msgBox = document.getElementById('msg-box');
+            msgBox.innerText = `現前供養：${buddha.name} - ${buddha.description}`;
+            msgBox.style.opacity = 1;
             setTimeout(() => {
-                buddhaImg.style.opacity = 1;
-            }, 50);
-        }, 300);
+                if(msgBox.innerText.includes(buddha.name)) msgBox.style.opacity = 0;
+            }, 3000);
+        }
     }
 
+    // 供養功能 (原始邏輯)
     function offer(type, text) {
         document.getElementById('app').classList.add('light-up');
 
@@ -501,12 +334,13 @@
         const msgBox = document.getElementById('msg-box');
         msgBox.innerText = text;
         msgBox.style.opacity = 1;
-
+        
         setTimeout(() => {
             if(msgBox.innerText === text) msgBox.style.opacity = 0;
         }, 3500);
     }
 
+    // 重新供養
     function resetAll() {
         const items = document.querySelectorAll('.offering');
         items.forEach(item => item.classList.remove('show'));
@@ -518,10 +352,7 @@
         setTimeout(() => { msgBox.style.opacity = 0; }, 1500);
     }
 
-    // 頁面載入時初始化
-    window.onload = function() {
-        initBuddha();
-    };
+    window.onload = initBuddha;
 </script>
 
 </body>
